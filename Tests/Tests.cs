@@ -62,9 +62,25 @@ namespace AutomationLibrary.Tests
         }
 
         [TestMethod]
+        public void TestWindowAsParent()
+        {
+            XPathNavigator navigator = new AutomationDocument();
+            XPathNodeIterator nodes = navigator.Select("/pane/window[@Name='TestWindow" + id + "']");
+            Assert.IsTrue(nodes.MoveNext());
+            AutomationElement element = nodes.Current.UnderlyingObject as AutomationElement;
+            navigator = new AutomationDocument(element);
+            Assert.IsFalse(navigator.MoveToParent());
+            Assert.IsFalse(navigator.MoveToNext());
+            Assert.IsTrue(navigator.MoveToChild(XPathNodeType.Element));
+            Assert.IsFalse(navigator.MoveToNext());
+            nodes = navigator.Select("button[@AutomationId='okbutton']");
+            Assert.IsTrue(nodes.MoveNext());
+        }
+
+        [TestMethod]
         public void NamesShouldBeTagNames()
         {
-            XPathNavigator navigator = new AutomationDocument(AutomationElement.NameProperty, AutomationElement.LocalizedControlTypeProperty);
+            XPathNavigator navigator = new AutomationDocument(AutomationElement.RootElement, AutomationElement.NameProperty, AutomationElement.LocalizedControlTypeProperty);
             XPathNodeIterator nodes = navigator.Select("/*/TestWindow" + id + "/*[.='button']");
             Assert.IsTrue(nodes.MoveNext());
             Assert.AreEqual("Click me", nodes.Current.LocalName);

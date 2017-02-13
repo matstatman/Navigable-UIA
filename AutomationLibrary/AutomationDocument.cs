@@ -19,6 +19,8 @@ namespace AutomationLibrary
 		AutomationProperty tagAttrib;
 		AutomationProperty valueAttrib;
 
+        AutomationElement rootElement;
+
 		static readonly AutomationProperty[] defaultAttribs = new AutomationProperty[] { AutomationElement.ClassNameProperty, AutomationElement.AutomationIdProperty, AutomationElement.NameProperty };
 		List<KeyValuePair<String, AutomationProperty>> attribs;
 
@@ -58,25 +60,32 @@ namespace AutomationLibrary
             return cacheRequest;
         }
 
-        public AutomationDocument() : this(AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
+        public AutomationDocument()
+            : this(AutomationElement.RootElement, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
+        {
+
+        }
+
+        public AutomationDocument(AutomationElement root) : this(root, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
 		{
 			
 		}
 
-        public AutomationDocument(AutomationProperty tagAttrib, AutomationProperty valueAttrib)
-            : this(tagAttrib, valueAttrib, defaultAttribs)
+        public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib)
+            : this(root, tagAttrib, valueAttrib, defaultAttribs)
         {
             
         }
 
-        public AutomationDocument(AutomationProperty tagAttrib, AutomationProperty valueAttrib, AutomationProperty[] automationElement)
-            : this(tagAttrib, valueAttrib, BuildAttributes(automationElement))
+        public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, AutomationProperty[] automationElement)
+            : this(root, tagAttrib, valueAttrib, BuildAttributes(automationElement))
         {
             
         }
 
-        private AutomationDocument(AutomationProperty tagAttrib, AutomationProperty valueAttrib, List<KeyValuePair<String, AutomationProperty>> attribs)
+        private AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, List<KeyValuePair<String, AutomationProperty>> attribs)
         {
+            this.rootElement = root;
             this.tagAttrib = tagAttrib;
             this.valueAttrib = valueAttrib;
             this.attribs = attribs;
@@ -87,7 +96,7 @@ namespace AutomationLibrary
 
 		public override XPathNavigator Clone()
 		{
-            AutomationDocument other = new AutomationDocument(tagAttrib, valueAttrib, attribs);
+            AutomationDocument other = new AutomationDocument(rootElement, tagAttrib, valueAttrib, attribs);
 			other.MoveTo(this);
 			return other;
 		}
@@ -139,7 +148,7 @@ namespace AutomationLibrary
 
 		public override bool MoveToNext()
 		{
-			if (element == null)
+            if (element == null || AutomationElement.Equals(element, rootElement))
 			{
 				return false;
 			}
@@ -153,7 +162,7 @@ namespace AutomationLibrary
 
 		public override bool MoveToPrevious()
 		{
-			if (element == null)
+            if (element == null || AutomationElement.Equals(element, rootElement))
 			{
 				return false;
 			}
@@ -170,7 +179,7 @@ namespace AutomationLibrary
 		{
 			if (element == null)
 			{
-				element = AutomationElement.RootElement;
+				element = rootElement.GetUpdatedCache(request);
 				return true;
 			}
             AutomationElement e = walker.GetFirstChild(element, request);
@@ -185,9 +194,10 @@ namespace AutomationLibrary
 
 		public override bool MoveToParent()
 		{
-			if (element == null) { 
-				return false;
-			}
+            if (element == null)
+            {
+                return false;
+            }
 			AutomationElement e = walker.GetParent(element, request);
 			element = e;
 			attrib = -1;
@@ -318,5 +328,4 @@ namespace AutomationLibrary
 			}
 		}
 	}
-
 }
