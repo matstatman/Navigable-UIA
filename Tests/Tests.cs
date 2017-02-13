@@ -72,6 +72,7 @@ namespace AutomationLibrary.Tests
             Assert.IsFalse(navigator.MoveToParent());
             Assert.IsNull(navigator.UnderlyingObject);
             Assert.IsFalse(navigator.MoveToNext());
+            Assert.IsFalse(navigator.MoveToPrevious());
             Assert.IsNull(navigator.UnderlyingObject);
             Assert.IsTrue(navigator.MoveToChild(XPathNodeType.Element));
             Assert.IsNotNull(navigator.UnderlyingObject);
