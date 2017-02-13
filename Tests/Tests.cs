@@ -70,7 +70,13 @@ namespace AutomationLibrary.Tests
             AutomationElement element = nodes.Current.UnderlyingObject as AutomationElement;
             navigator = new AutomationDocument(element);
             Assert.IsFalse(navigator.MoveToParent());
+            Assert.IsNull(navigator.UnderlyingObject);
             Assert.IsFalse(navigator.MoveToNext());
+            Assert.IsNull(navigator.UnderlyingObject);
+            Assert.IsTrue(navigator.MoveToChild(XPathNodeType.Element));
+            Assert.IsNotNull(navigator.UnderlyingObject);
+            Assert.IsTrue(navigator.MoveToParent());
+            Assert.IsNull(navigator.UnderlyingObject);
             Assert.IsTrue(navigator.MoveToChild(XPathNodeType.Element));
             Assert.IsFalse(navigator.MoveToNext());
             nodes = navigator.Select("button[@AutomationId='okbutton']");
