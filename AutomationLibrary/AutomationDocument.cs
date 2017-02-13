@@ -198,6 +198,12 @@ namespace AutomationLibrary
             {
                 return false;
             }
+            else if (AutomationElement.Equals(element, rootElement))
+            {
+                element = null;
+                attrib = -1;
+                return true;
+            }
 			AutomationElement e = walker.GetParent(element, request);
 			element = e;
 			attrib = -1;
