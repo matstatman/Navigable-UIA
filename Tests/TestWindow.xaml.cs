@@ -19,8 +19,6 @@ namespace AutomationLibrary.Tests
     /// </summary>
     public partial class TestWindow : Window
     {
-        int clicks = 1;
-
         public TestWindow()
         {
             InitializeComponent();
@@ -28,7 +26,7 @@ namespace AutomationLibrary.Tests
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            textbox1.Text = "num clicks " + clicks++;
+            textbox1.Text = "num clicks " + (Int32.Parse(textbox1.Text.Substring("num clicks ".Length)) + 1);
         }
     }
 }

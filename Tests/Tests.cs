@@ -9,38 +9,8 @@ using System.Windows.Automation;
 namespace AutomationLibrary.Tests
 {
     [TestClass]
-    public class Tests
+    public class Tests : TestEnv
     {
-        static String id = Process.GetCurrentProcess().Id.ToString();
-
-        #region Setup test env
-        static TestWindow window;
-        static Thread thread;
-
-        [ClassInitialize()]
-        public static void MyTestInitialize(TestContext testContext)
-        {
-            AutoResetEvent reset = new AutoResetEvent(false);
-            thread = new Thread(new ParameterizedThreadStart((data) =>
-            {
-                window = new TestWindow();
-                window.Title += id;
-                window.Loaded += (sender, e) => reset.Set();
-                new System.Windows.Application().Run(window);
-            }));
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            reset.WaitOne();
-        }
-
-        [ClassCleanup]
-        public static void TestCleanup()
-        {
-            window.Dispatcher.Invoke((Action) delegate { window.Close(); });
-            thread.Join();
-        }
-        #endregion
-
         [TestMethod]
         public void DesktopHasParent()
         {

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AutomationLibrary</RootNamespace>
     <AssemblyName>AutomationLibrary</AssemblyName>
-    <TargetFrameworkVersion>v3.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -41,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutomationDocument.cs" />
+    <Compile Include="Types.cs" />
+    <Compile Include="ObjectProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

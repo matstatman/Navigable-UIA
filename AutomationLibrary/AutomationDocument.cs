@@ -28,7 +28,7 @@ namespace AutomationLibrary
 			List<KeyValuePair<String, AutomationProperty>> list = new List<KeyValuePair<String, AutomationProperty>>();
 			foreach(AutomationProperty prop in arr)
 			{
-                String name = Automation.PropertyName(prop);                
+                String name = Automation.PropertyName(prop);
 				list.Add(new KeyValuePair<String, AutomationProperty>(name, prop));
 			}
 			return list;
