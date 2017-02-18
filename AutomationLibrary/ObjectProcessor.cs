@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Windows.Automation;
 using System.Xml.XPath;
 
@@ -9,36 +8,111 @@ namespace AutomationLibrary.ObjectBased
 {
     public class ObjectProcessor
     {
-
-        public AutomationElement First(String xpath)
+        private List<AutomationElement> All(AutomationDocument navigator, String xpath, ulong limit = 0)
         {
-            return First(AutomationElement.RootElement, xpath);
-        }
-
-        public AutomationElement First(AutomationElement parent, String xpath)
-        {
-            XPathNavigator navigator = new AutomationDocument(parent);
             XPathNodeIterator nodes = navigator.Select(xpath);
-            if (nodes.MoveNext()) {
-                return nodes.Current.UnderlyingObject as AutomationElement;
-            }
-            return null;
-        }
-
-        public void refresh(AutomationElement parent, Model target)
-        {
-            foreach (FieldInfo prop in target.GetType().GetFields())
+            List<AutomationElement> result = new List<AutomationElement>();
+            while (nodes.MoveNext())
             {
-                foreach (object attr in prop.GetCustomAttributes(typeof(AutomationAttribute), true))
+                AutomationElement element = nodes.Current.UnderlyingObject as AutomationElement;
+                if (AutomationElement.Equals(element, navigator.Root) == false)
                 {
-                    if (attr is XPath)
+                    result.Add(element);
+                    if (--limit == 0)
                     {
-                        XPath path = attr as XPath;
-                        AutomationElement hit = First(parent, path.Value);
-                        prop.SetValue(target, hit);
+                        break;
                     }
                 }
             }
+            return result;
+        }
+
+        public void parse(AutomationElement parent, Model target)
+        {
+            refresh(new AutomationDocument(parent), target);
+        }
+
+        public void refresh(AutomationDocument navigator, Model target)
+        {
+            foreach (FieldInfo field in target.GetType().GetFields())
+            {
+                foreach (object attr in field.GetCustomAttributes(typeof(AutomationAttribute), true))
+                {
+                    if (attr is XPath)
+                    {
+                        ProcessXPath(attr as XPath, navigator, target, field);
+                    }
+                }
+            }
+        }
+
+        private void ProcessXPath(XPath path, AutomationDocument navigator, Model target, FieldInfo field)
+        {
+            if (OfType(field, typeof(AutomationElement)))
+            {
+                if (field.FieldType.IsArray)
+                {
+                    List<AutomationElement> hits = All(navigator, path.Value);
+                    field.SetValue(target, hits.Count > 0 ? hits.ToArray() : null);
+                }
+                else
+                {
+                    List<AutomationElement> hits = All(navigator, path.Value, 1);
+                    field.SetValue(target, hits.Count > 0 ? hits[0] : null);
+                }
+            }
+            else if (OfType(field, typeof(Model)))
+            {
+                if (field.FieldType.IsArray)
+                {
+                    List<AutomationElement> hits = All(navigator, path.Value);
+                    Array arr = null;
+                    if (hits.Count > 0)
+                    {
+                        Type modeltype = field.FieldType.GetElementType();
+                        ConstructorInfo modelctor = FindConstructor(modeltype);
+                        arr = Array.CreateInstance(modeltype, hits.Count);
+                        for (int i = 0; i < hits.Count; i++)
+                        {
+                            Model model = modelctor.Invoke(new object[] { }) as Model;
+                            AutomationDocument clone = navigator.Clone() as AutomationDocument;
+                            clone.Root = hits[i];
+                            refresh(clone, model);
+                            arr.SetValue(model, i);
+                        }
+                    }
+                    field.SetValue(target, arr);
+                }
+                else
+                {
+                    List<AutomationElement> hits = All(navigator, path.Value, 1);
+                    Model model = null;
+                    if (hits.Count > 0)
+                    {
+                        ConstructorInfo ctor = FindConstructor(field.FieldType);
+                        model = ctor.Invoke(new object[] { }) as Model;
+                        AutomationDocument clone = navigator.Clone() as AutomationDocument;
+                        clone.Root = hits[0];
+                        refresh(clone, model);
+                    }
+                    field.SetValue(target, model);
+                }
+            }
+        }
+
+        private static ConstructorInfo FindConstructor(Type t)
+        {
+            ConstructorInfo ctor = t.GetConstructor(new Type[] { });
+            if (ctor == null)
+            {
+                throw new MissingMethodException("Missing no arg constuctor for " + t.FullName);
+            }
+            return ctor;
+        }
+
+        private static bool OfType(FieldInfo field, Type t)
+        {
+            return t.IsAssignableFrom(field.FieldType) || (field.FieldType.IsArray && t.IsAssignableFrom(field.FieldType.GetElementType()));
         }
     }
 }

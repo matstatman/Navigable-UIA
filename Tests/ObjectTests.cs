@@ -1,16 +1,13 @@
-﻿using System;
+﻿using AutomationLibrary.ObjectBased;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AutomationLibrary.ObjectBased;
 using System.Windows.Automation;
-using System.Diagnostics;
-using System.Threading;
 
-namespace AutomationLibrary.Tests 
+namespace AutomationLibrary.Tests
 {
     public class Program : Model
     {
         [WindowNamed("TestWindow")]
-        public AutomationElement Window;
+        public WindowModel Window;
     }
 
     public class WindowModel : Model
@@ -21,31 +18,33 @@ namespace AutomationLibrary.Tests
         [XPath("//edit")]
         public AutomationElement edit;
 
-        public void somelogic()
-        {
-            ValuePattern valuepattern = edit.GetCurrentPattern(ValuePattern.Pattern) as ValuePattern;
-            valuepattern.SetValue("num clicks 9");
-            InvokePattern invokepattern = button.GetCurrentPattern(InvokePattern.Pattern) as InvokePattern;
-            invokepattern.Invoke();
-        }
+        [AutomationId("mylistbox")]
+        public ListBoxModel listbox;
     }
-    
+
+    public class ListBoxModel : Model
+    {
+        [XPath("/*/*[local-name()='list item']")]
+        public AutomationElement[] items;
+    }
+
     [TestClass]
     public class ObjectTests : TestEnv
     {
         Program program = new Program();
-        WindowModel model = new WindowModel();
         ObjectProcessor parser = new ObjectProcessor();
-        
+
         [TestMethod]
         public void TestParseAsObjects()
         {
-            parser.refresh(AutomationElement.RootElement, program);
-            parser.refresh(program.Window, model);
-            model.somelogic();
-            parser.refresh(program.Window, model);
-            ValuePattern valuepattern = model.edit.GetCurrentPattern(ValuePattern.Pattern) as ValuePattern;
-            Assert.AreEqual("num clicks 10", valuepattern.Current.Value);
+            parser.parse(AutomationElement.RootElement, program);
+
+            Assert.IsNotNull(program);
+            Assert.IsNotNull(program.Window);
+            Assert.IsNotNull(program.Window.listbox);
+            Assert.IsNotNull(program.Window.edit);
+            Assert.IsNotNull(program.Window.listbox.items);
+            Assert.AreEqual(3, program.Window.listbox.items.Length);
         }
     }
 }

@@ -12,14 +12,14 @@ namespace AutomationLibrary
 	{
 		AutomationElement element;
 		TreeWalker walker;
-        CacheRequest request;
+		CacheRequest request;
 
 		int attrib;
 
 		AutomationProperty tagAttrib;
 		AutomationProperty valueAttrib;
 
-        AutomationElement rootElement;
+		AutomationElement rootElement;
 
 		static readonly AutomationProperty[] defaultAttribs = new AutomationProperty[] { AutomationElement.ClassNameProperty, AutomationElement.AutomationIdProperty, AutomationElement.NameProperty };
 		List<KeyValuePair<String, AutomationProperty>> attribs;
@@ -28,7 +28,7 @@ namespace AutomationLibrary
 			List<KeyValuePair<String, AutomationProperty>> list = new List<KeyValuePair<String, AutomationProperty>>();
 			foreach(AutomationProperty prop in arr)
 			{
-                String name = Automation.PropertyName(prop);
+				String name = Automation.PropertyName(prop);
 				list.Add(new KeyValuePair<String, AutomationProperty>(name, prop));
 			}
 			return list;
@@ -36,7 +36,7 @@ namespace AutomationLibrary
 
 		String GetProperty(AutomationProperty prop) {
 			if (element != null)  {
-                object obj = element.GetCachedPropertyValue(prop, true);
+				object obj = element.GetCachedPropertyValue(prop, true);
 				if (obj != null) { 
 					return "" + obj;
 				}
@@ -44,61 +44,75 @@ namespace AutomationLibrary
 			return null;
 		}
 
-        CacheRequest cacheProperties()
-        {
-            CacheRequest cacheRequest = new CacheRequest();
-            cacheRequest.Add(tagAttrib);
-            cacheRequest.Add(valueAttrib);            
-            for (int i = 0; i < attribs.Count; i++)
-            {
-                AutomationProperty prop = attribs[i].Value;
-                if (prop != tagAttrib || prop != valueAttrib) {
-                    cacheRequest.Add(attribs[i].Value);
-                }
-            }
-            cacheRequest.Activate();
-            return cacheRequest;
-        }
+		CacheRequest cacheProperties()
+		{
+			CacheRequest cacheRequest = new CacheRequest();
+			cacheRequest.Add(tagAttrib);
+			cacheRequest.Add(valueAttrib);            
+			for (int i = 0; i < attribs.Count; i++)
+			{
+				AutomationProperty prop = attribs[i].Value;
+				if (prop != tagAttrib || prop != valueAttrib) {
+					cacheRequest.Add(attribs[i].Value);
+				}
+			}
+			cacheRequest.Activate();
+			return cacheRequest;
+		}
 
-        public AutomationDocument()
-            : this(AutomationElement.RootElement, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
-        {
+		public AutomationDocument()
+			: this(AutomationElement.RootElement, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
+		{
 
-        }
+		}
 
-        public AutomationDocument(AutomationElement root) : this(root, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
+		public AutomationDocument(AutomationElement root) : this(root, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
 		{
 			
 		}
 
-        public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib)
-            : this(root, tagAttrib, valueAttrib, defaultAttribs)
-        {
-            
-        }
+		public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib)
+			: this(root, tagAttrib, valueAttrib, defaultAttribs)
+		{
+			
+		}
 
-        public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, AutomationProperty[] automationElement)
-            : this(root, tagAttrib, valueAttrib, BuildAttributes(automationElement))
-        {
-            
-        }
+		public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, AutomationProperty[] automationElement)
+			: this(root, tagAttrib, valueAttrib, BuildAttributes(automationElement))
+		{
+			
+		}
 
-        private AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, List<KeyValuePair<String, AutomationProperty>> attribs)
-        {
-            this.rootElement = root;
-            this.tagAttrib = tagAttrib;
-            this.valueAttrib = valueAttrib;
-            this.attribs = attribs;
-            this.attrib = -1;
-            walker = TreeWalker.RawViewWalker;
-            request = cacheProperties();
-        }
+		private AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, List<KeyValuePair<String, AutomationProperty>> attribs)
+		{
+			this.rootElement = root;
+			this.tagAttrib = tagAttrib;
+			this.valueAttrib = valueAttrib;
+			this.attribs = attribs;
+			this.attrib = -1;
+			walker = TreeWalker.RawViewWalker;
+			request = cacheProperties();
+		}
 
 		public override XPathNavigator Clone()
 		{
-            AutomationDocument other = new AutomationDocument(rootElement, tagAttrib, valueAttrib, attribs);
+			AutomationDocument other = new AutomationDocument(rootElement, tagAttrib, valueAttrib, attribs);
 			other.MoveTo(this);
 			return other;
+		}
+
+		internal AutomationElement Root
+		{
+			get
+			{
+				return rootElement;
+			}
+
+			set {
+				rootElement = value.GetUpdatedCache(request);
+				element = rootElement;
+				attrib = -1;
+			}
 		}
 
 		public override bool MoveToFirstAttribute()
@@ -148,11 +162,11 @@ namespace AutomationLibrary
 
 		public override bool MoveToNext()
 		{
-            if (element == null || AutomationElement.Equals(element, rootElement))
+			if (element == null || AutomationElement.Equals(element, rootElement))
 			{
 				return false;
 			}
-            AutomationElement e = walker.GetNextSibling(element, request);
+			AutomationElement e = walker.GetNextSibling(element, request);
 			if (e == null) {
 				return false;
 			}
@@ -162,11 +176,11 @@ namespace AutomationLibrary
 
 		public override bool MoveToPrevious()
 		{
-            if (element == null || AutomationElement.Equals(element, rootElement))
+			if (element == null || AutomationElement.Equals(element, rootElement))
 			{
 				return false;
 			}
-            AutomationElement e = walker.GetPreviousSibling(element, request);
+			AutomationElement e = walker.GetPreviousSibling(element, request);
 			if (e == null)
 			{
 				return false;
@@ -182,7 +196,7 @@ namespace AutomationLibrary
 				element = rootElement.GetUpdatedCache(request);
 				return true;
 			}
-            AutomationElement e = walker.GetFirstChild(element, request);
+			AutomationElement e = walker.GetFirstChild(element, request);
 			if (e == null)
 			{
 				return false;
@@ -194,16 +208,16 @@ namespace AutomationLibrary
 
 		public override bool MoveToParent()
 		{
-            if (element == null)
-            {
-                return false;
-            }
-            else if (AutomationElement.Equals(element, rootElement))
-            {
-                element = null;
-                attrib = -1;
-                return true;
-            }
+			if (element == null)
+			{
+				return false;
+			}
+			else if (AutomationElement.Equals(element, rootElement))
+			{
+				element = null;
+				attrib = -1;
+				return true;
+			}
 			AutomationElement e = walker.GetParent(element, request);
 			element = e;
 			attrib = -1;
@@ -274,26 +288,26 @@ namespace AutomationLibrary
 			}
 		}
 
-        public override string Value
-        {
-            get
-            {
-                if (attrib > -1)
-                {
-                    return GetProperty(attribs[attrib].Value);
-                }
+		public override string Value
+		{
+			get
+			{
+				if (attrib > -1)
+				{
+					return GetProperty(attribs[attrib].Value);
+				}
 
-                return GetProperty(valueAttrib);
-            }
-        }
+				return GetProperty(valueAttrib);
+			}
+		}
 
-        public override object UnderlyingObject
-        {
-            get
-            {
-                return element;
-            }
-        }
+		public override object UnderlyingObject
+		{
+			get
+			{
+				return element;
+			}
+		}
 		public override string Name
 		{
 			get

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Windows.Automation;
 
 namespace AutomationLibrary.ObjectBased
 {
@@ -33,7 +29,8 @@ namespace AutomationLibrary.ObjectBased
     [AttributeUsageAttribute(AttributeTargets.Field)]
     public class WindowNamed : XPath
     {
-        public WindowNamed(String contains) : this(contains, 1)
+        public WindowNamed(String contains)
+            : this(contains, 1)
         {
 
         }
@@ -41,7 +38,7 @@ namespace AutomationLibrary.ObjectBased
         public WindowNamed(String contains, int level)
             : base(String.Concat(Enumerable.Repeat("/*", level).ToArray()) + "/window[contains(@Name,'" + contains.Replace("'", "\\'") + "')]")
         {
-            
+
         }
     }
 

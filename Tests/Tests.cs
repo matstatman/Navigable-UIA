@@ -1,10 +1,6 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics;
-using System.Threading;
-using AutomationLibrary;
-using System.Xml.XPath;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Windows.Automation;
+using System.Xml.XPath;
 
 namespace AutomationLibrary.Tests
 {
@@ -75,7 +71,7 @@ namespace AutomationLibrary.Tests
             AutomationElement element = nodes.Current.UnderlyingObject as AutomationElement;
             InvokePattern invokepattern = element.GetCurrentPattern(InvokePattern.Pattern) as InvokePattern;
             invokepattern.Invoke();
-            
+
             nodes = navigator.Select("/pane/window[@Name='TestWindow" + id + "']/edit");
             Assert.IsTrue(nodes.MoveNext());
 
