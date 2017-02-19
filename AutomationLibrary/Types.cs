@@ -27,6 +27,15 @@ namespace AutomationLibrary.ObjectBased
     }
 
     [AttributeUsageAttribute(AttributeTargets.Field)]
+    public class Named : XPath
+    {
+        public Named(String name)
+            : base("//*[@Name='" + name.Replace("'", "\\'") + "']")
+        {
+        }
+    }
+
+    [AttributeUsageAttribute(AttributeTargets.Field)]
     public class WindowNamed : XPath
     {
         public WindowNamed(String contains)
