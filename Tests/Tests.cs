@@ -67,17 +67,12 @@ namespace AutomationLibrary.Tests
             XPathNavigator navigator = new AutomationDocument();
             XPathNodeIterator nodes = navigator.Select("/pane/window[@Name='TestWindow" + id + "']/button[@AutomationId='okbutton']");
             Assert.IsTrue(nodes.MoveNext());
-
             AutomationElement element = nodes.Current.UnderlyingObject as AutomationElement;
-            InvokePattern invokepattern = element.GetCurrentPattern(InvokePattern.Pattern) as InvokePattern;
-            invokepattern.Invoke();
-
+            element.Click();
             nodes = navigator.Select("/pane/window[@Name='TestWindow" + id + "']/edit");
             Assert.IsTrue(nodes.MoveNext());
-
             element = nodes.Current.UnderlyingObject as AutomationElement;
-            ValuePattern valuepattern = element.GetCurrentPattern(ValuePattern.Pattern) as ValuePattern;
-            Assert.AreEqual("num clicks 1", valuepattern.Current.Value);
+            Assert.AreEqual("num clicks 1", element.Value());
         }
     }
 }
