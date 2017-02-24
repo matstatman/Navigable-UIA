@@ -75,6 +75,12 @@ namespace AutomationLibrary.ObjectBased
                         for (int i = 0; i < hits.Count; i++)
                         {
                             Model model = modelctor.Invoke(new object[] { }) as Model;
+                            ContainerModel co = model as ContainerModel;
+                            if (field.FieldType.IsSubclassOf(modeltype))
+                            {
+                                co.parent = navigator.Root;
+                                co.container = hits[i];
+                            }
                             AutomationDocument clone = navigator.Clone() as AutomationDocument;
                             clone.Root = hits[i];
                             refresh(clone, model);
@@ -91,6 +97,12 @@ namespace AutomationLibrary.ObjectBased
                     {
                         ConstructorInfo ctor = FindConstructor(field.FieldType);
                         model = ctor.Invoke(new object[] { }) as Model;
+                        ContainerModel co = model as ContainerModel;
+                        if (field.FieldType.IsSubclassOf(typeof(ContainerModel)))
+                        {
+                            co.parent = navigator.Root;
+                            co.container = hits[0];
+                        }
                         AutomationDocument clone = navigator.Clone() as AutomationDocument;
                         clone.Root = hits[0];
                         refresh(clone, model);

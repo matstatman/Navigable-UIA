@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Windows.Automation;
 
 namespace AutomationLibrary.ObjectBased
 {
@@ -51,8 +52,15 @@ namespace AutomationLibrary.ObjectBased
         }
     }
 
-    public interface Model
+    public abstract class Model
     {
 
+    }
+
+    public abstract class ContainerModel : Model
+    {
+        internal ObjectProcessor parser = new ObjectProcessor();
+        internal AutomationElement parent;
+        internal AutomationElement container;
     }
 }

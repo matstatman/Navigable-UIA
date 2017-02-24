@@ -61,11 +61,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ObjectTests.cs" />
     <Compile Include="TestWindow.xaml.cs">
       <DependentUpon>TestWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tests.cs" />
-    <Compile Include="ObjectTests.cs" />
+    <Compile Include="ReloadableObjectTests.cs" />
     <Compile Include="TestEnv.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              Height="267" Width="300">
     <Grid>
+        <Menu Height="23" Margin="0,0,0,214">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New">
+                    <MenuItem Header="_Page" Click="MenuItem_Click"/>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
         <Button AutomationProperties.AutomationId="okbutton" Content="Click me" HorizontalAlignment="Left" Margin="72,68,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
         <TextBox AutomationProperties.AutomationId="textbox" x:Name="textbox1" HorizontalAlignment="Left" Height="23" Margin="72,37,0,0" TextWrapping="Wrap" Text="num clicks 0" VerticalAlignment="Top" Width="120"/>
 

@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="AutomationDocument.cs" />
+    <Compile Include="ReloadableObject.cs" />
     <Compile Include="Types.cs" />
     <Compile Include="ObjectProcessor.cs" />
   </ItemGroup>

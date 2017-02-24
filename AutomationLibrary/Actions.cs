@@ -7,12 +7,28 @@ namespace AutomationLibrary
     {
         public static void Click(this AutomationElement element)
         {
-            InvokePattern pattern = element.GetCurrentPattern(InvokePattern.Pattern) as InvokePattern;
-            if (pattern == null)
+            Object pattern = null;
+            if (element.TryGetCurrentPattern(InvokePattern.Pattern, out pattern))
             {
-                throw new InvalidCastException("The invoke pattern is not supported by this element");
+                InvokePattern invoke = pattern as InvokePattern;
+                invoke.Invoke();
             }
-            pattern.Invoke();
+            else if (element.TryGetCurrentPattern(ExpandCollapsePattern.Pattern, out pattern))
+            {
+                ExpandCollapsePattern expander = pattern as ExpandCollapsePattern;
+                if (expander.Current.ExpandCollapseState == ExpandCollapseState.Expanded)
+                {
+                    expander.Collapse();
+                }
+                else
+                {
+                    expander.Expand();
+                }
+            }
+            else
+            {
+                throw new InvalidCastException("The no matching pattern found on this element");
+            }
         }
 
         public static void SetValue(this AutomationElement element, String value)
