@@ -4,7 +4,7 @@ using System.Windows.Automation;
 
 namespace AutomationLibrary.Tests.Lazy
 {
-    public class Program : Model
+    public class Program : ReloadableObject<Program>
     {
         [WindowNamed("TestWindow")]
         public Window Window;
@@ -41,7 +41,7 @@ namespace AutomationLibrary.Tests.Lazy
         public void TestClicks()
         {
             parser.parse(AutomationElement.RootElement, program);
-            program.Window.Click(p => p.File).Click(p => p.New).Click(p => p.Page);
+            program.WaitFor(p => p.Window).Click(p => p.File).Click(p => p.New).Click(p => p.Page);
             Assert.AreEqual("num clicks -1", program.Window.Edit.Value());
         }
     }

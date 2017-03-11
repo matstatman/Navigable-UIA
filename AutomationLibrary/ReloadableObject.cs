@@ -40,8 +40,14 @@ namespace AutomationLibrary.ObjectBased
         {
             while (condition.Invoke(Self) == false)
             {
-                parser.parse(parent, this);
+                Reload();
             }
+            return Self;
+        }
+
+        public T Reload()
+        {
+            parser.parse(parent, this);
             return Self;
         }
     }

@@ -34,6 +34,11 @@ namespace AutomationLibrary.ObjectBased
 
         public void refresh(AutomationDocument navigator, Model target)
         {
+            if (target is ContainerModel)
+            {
+                (target as ContainerModel).parent = navigator.Root;
+            }
+
             foreach (FieldInfo field in target.GetType().GetFields())
             {
                 foreach (object attr in field.GetCustomAttributes(typeof(AutomationAttribute), true))
