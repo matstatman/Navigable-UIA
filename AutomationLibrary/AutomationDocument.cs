@@ -1,351 +1,359 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 using System.Windows.Automation;
 using System.Xml;
 using System.Xml.XPath;
 
 namespace AutomationLibrary
 {
-	public class AutomationDocument : XPathNavigator
-	{
-		AutomationElement element;
-		TreeWalker walker;
-		CacheRequest request;
+    public class AutomationDocument : XPathNavigator
+    {
+        protected AutomationElement element;
+        TreeWalker walker;
+        CacheRequest request;
 
-		int attrib;
+        protected int attrib;
 
-		AutomationProperty tagAttrib;
-		AutomationProperty valueAttrib;
+        AutomationProperty tagAttrib;
+        AutomationProperty valueAttrib;
 
-		AutomationElement rootElement;
+        protected AutomationElement rootElement;
 
-		static readonly AutomationProperty[] defaultAttribs = new AutomationProperty[] { AutomationElement.ClassNameProperty, AutomationElement.AutomationIdProperty, AutomationElement.NameProperty };
-		List<KeyValuePair<String, AutomationProperty>> attribs;
+        static readonly AutomationProperty[] defaultAttribs = new AutomationProperty[] { AutomationElement.ClassNameProperty, AutomationElement.AutomationIdProperty, AutomationElement.NameProperty };
+        List<KeyValuePair<String, AutomationProperty>> attribs;
 
-		static List<KeyValuePair<String, AutomationProperty>> BuildAttributes(AutomationProperty[] arr) {
-			List<KeyValuePair<String, AutomationProperty>> list = new List<KeyValuePair<String, AutomationProperty>>();
-			foreach(AutomationProperty prop in arr)
-			{
-				String name = Automation.PropertyName(prop);
-				list.Add(new KeyValuePair<String, AutomationProperty>(name, prop));
-			}
-			return list;
-		}
+        static List<KeyValuePair<String, AutomationProperty>> BuildAttributes(AutomationProperty[] arr)
+        {
+            List<KeyValuePair<String, AutomationProperty>> list = new List<KeyValuePair<String, AutomationProperty>>();
+            foreach (AutomationProperty prop in arr)
+            {
+                String name = Automation.PropertyName(prop);
+                list.Add(new KeyValuePair<String, AutomationProperty>(name, prop));
+            }
+            return list;
+        }
 
-		String GetProperty(AutomationProperty prop) {
-			if (element != null)  {
-				object obj = element.GetCachedPropertyValue(prop, true);
-				if (obj != null) { 
-					return "" + obj;
-				}
-			}
-			return null;
-		}
+        String GetProperty(AutomationProperty prop)
+        {
+            if (element != null)
+            {
+                object obj = element.GetCachedPropertyValue(prop, true);
+                if (obj != null)
+                {
+                    return "" + obj;
+                }
+            }
+            return null;
+        }
 
-		CacheRequest cacheProperties()
-		{
-			CacheRequest cacheRequest = new CacheRequest();
-			cacheRequest.Add(tagAttrib);
-			cacheRequest.Add(valueAttrib);            
-			for (int i = 0; i < attribs.Count; i++)
-			{
-				AutomationProperty prop = attribs[i].Value;
-				if (prop != tagAttrib || prop != valueAttrib) {
-					cacheRequest.Add(attribs[i].Value);
-				}
-			}
-			cacheRequest.Activate();
-			return cacheRequest;
-		}
+        CacheRequest cacheProperties()
+        {
+            CacheRequest cacheRequest = new CacheRequest();
+            cacheRequest.Add(tagAttrib);
+            cacheRequest.Add(valueAttrib);
+            for (int i = 0; i < attribs.Count; i++)
+            {
+                AutomationProperty prop = attribs[i].Value;
+                if (prop != tagAttrib || prop != valueAttrib)
+                {
+                    cacheRequest.Add(attribs[i].Value);
+                }
+            }
+            cacheRequest.Activate();
+            return cacheRequest;
+        }
 
-		public AutomationDocument()
-			: this(AutomationElement.RootElement, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
-		{
+        public AutomationDocument()
+            : this(AutomationElement.RootElement, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
+        {
 
-		}
+        }
 
-		public AutomationDocument(AutomationElement root) : this(root, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
-		{
-			
-		}
+        public AutomationDocument(AutomationElement root)
+            : this(root, AutomationElement.LocalizedControlTypeProperty, AutomationElement.NameProperty, defaultAttribs)
+        {
 
-		public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib)
-			: this(root, tagAttrib, valueAttrib, defaultAttribs)
-		{
-			
-		}
+        }
 
-		public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, AutomationProperty[] automationElement)
-			: this(root, tagAttrib, valueAttrib, BuildAttributes(automationElement))
-		{
-			
-		}
+        public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib)
+            : this(root, tagAttrib, valueAttrib, defaultAttribs)
+        {
 
-		private AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, List<KeyValuePair<String, AutomationProperty>> attribs)
-		{
-			this.rootElement = root;
-			this.tagAttrib = tagAttrib;
-			this.valueAttrib = valueAttrib;
-			this.attribs = attribs;
-			this.attrib = -1;
-			walker = TreeWalker.RawViewWalker;
-			request = cacheProperties();
-		}
+        }
 
-		public override XPathNavigator Clone()
-		{
-			AutomationDocument other = new AutomationDocument(rootElement, tagAttrib, valueAttrib, attribs);
-			other.MoveTo(this);
-			return other;
-		}
+        public AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, AutomationProperty[] automationElement)
+            : this(root, tagAttrib, valueAttrib, BuildAttributes(automationElement))
+        {
 
-		internal AutomationElement Root
-		{
-			get
-			{
-				return rootElement;
-			}
+        }
 
-			set {
-				rootElement = value.GetUpdatedCache(request);
-				element = rootElement;
-				attrib = -1;
-			}
-		}
+        private AutomationDocument(AutomationElement root, AutomationProperty tagAttrib, AutomationProperty valueAttrib, List<KeyValuePair<String, AutomationProperty>> attribs)
+        {
+            this.rootElement = root;
+            this.tagAttrib = tagAttrib;
+            this.valueAttrib = valueAttrib;
+            this.attribs = attribs;
+            this.attrib = -1;
+            walker = TreeWalker.RawViewWalker;
+            request = cacheProperties();
+        }
 
-		public override bool MoveToFirstAttribute()
-		{
-			int next = NextAttributeIndex(0);
-			if (next > -1)
-			{
-				attrib = next;
-				return true;
-			}
-			return false;
-		}
+        public override XPathNavigator Clone()
+        {
+            AutomationDocument other = new AutomationDocument(rootElement, tagAttrib, valueAttrib, attribs);
+            other.MoveTo(this);
+            return other;
+        }
 
-		int NextAttributeIndex(int pos)
-		{
-			for (; pos < attribs.Count; pos++)
-			{
-				Object value = GetProperty(attribs[pos].Value);
-				if (value != null)
-				{
-					return pos;
-				}
-			}
-			return -1;
-		}
+        internal AutomationElement Root
+        {
+            get
+            {
+                return rootElement;
+            }
 
-		public override bool MoveToNextAttribute()
-		{
-			int next = NextAttributeIndex(attrib + 1);
-			if (next > -1)
-			{
-				attrib = next;
-				return true;
-			}
-			return false;
-		}
+            set
+            {
+                rootElement = value.GetUpdatedCache(request);
+                element = rootElement;
+                attrib = -1;
+            }
+        }
 
-		public override bool MoveToFirstNamespace(XPathNamespaceScope namespaceScope)
-		{
-			throw new NotImplementedException();
-		}
+        public override bool MoveToFirstAttribute()
+        {
+            int next = NextAttributeIndex(0);
+            if (next > -1)
+            {
+                attrib = next;
+                return true;
+            }
+            return false;
+        }
 
-		public override bool MoveToNextNamespace(XPathNamespaceScope namespaceScope)
-		{
-			throw new NotImplementedException();
-		}
+        int NextAttributeIndex(int pos)
+        {
+            for (; pos < attribs.Count; pos++)
+            {
+                Object value = GetProperty(attribs[pos].Value);
+                if (value != null)
+                {
+                    return pos;
+                }
+            }
+            return -1;
+        }
 
-		public override bool MoveToNext()
-		{
-			if (element == null || AutomationElement.Equals(element, rootElement))
-			{
-				return false;
-			}
-			AutomationElement e = walker.GetNextSibling(element, request);
-			if (e == null) {
-				return false;
-			}
-			element = e;
-			return true;
-		}
+        public override bool MoveToNextAttribute()
+        {
+            int next = NextAttributeIndex(attrib + 1);
+            if (next > -1)
+            {
+                attrib = next;
+                return true;
+            }
+            return false;
+        }
 
-		public override bool MoveToPrevious()
-		{
-			if (element == null || AutomationElement.Equals(element, rootElement))
-			{
-				return false;
-			}
-			AutomationElement e = walker.GetPreviousSibling(element, request);
-			if (e == null)
-			{
-				return false;
-			}
-			element = e;
-			return true;
-		}
+        public override bool MoveToFirstNamespace(XPathNamespaceScope namespaceScope)
+        {
+            throw new NotImplementedException();
+        }
 
-		public override bool MoveToFirstChild()
-		{
-			if (element == null)
-			{
-				element = rootElement.GetUpdatedCache(request);
-				return true;
-			}
-			AutomationElement e = walker.GetFirstChild(element, request);
-			if (e == null)
-			{
-				return false;
-			}
-			element = e;
-			attrib = -1;
-			return true;
-		}
+        public override bool MoveToNextNamespace(XPathNamespaceScope namespaceScope)
+        {
+            throw new NotImplementedException();
+        }
 
-		public override bool MoveToParent()
-		{
-			if (element == null)
-			{
-				return false;
-			}
-			else if (AutomationElement.Equals(element, rootElement))
-			{
-				element = null;
-				attrib = -1;
-				return true;
-			}
-			AutomationElement e = walker.GetParent(element, request);
-			element = e;
-			attrib = -1;
-			return true;
-		}
+        public override bool MoveToNext()
+        {
+            if (element == null || AutomationElement.Equals(element, rootElement))
+            {
+                return false;
+            }
+            AutomationElement e = walker.GetNextSibling(element, request);
+            if (e == null)
+            {
+                return false;
+            }
+            element = e;
+            return true;
+        }
 
-		public override bool MoveTo(XPathNavigator other)
-		{
-			AutomationDocument o = other as AutomationDocument;
-			if (o == null) { 
-				return false;
-			}
-			element = o.element;
-			attrib = o.attrib;
-			return true;
-		}
+        public override bool MoveToPrevious()
+        {
+            if (element == null || AutomationElement.Equals(element, rootElement))
+            {
+                return false;
+            }
+            AutomationElement e = walker.GetPreviousSibling(element, request);
+            if (e == null)
+            {
+                return false;
+            }
+            element = e;
+            return true;
+        }
 
-		public override bool MoveToId(string id)
-		{
-			throw new NotImplementedException();
-		}
+        public override bool MoveToFirstChild()
+        {
+            if (element == null)
+            {
+                element = rootElement.GetUpdatedCache(request);
+                return true;
+            }
+            AutomationElement e = walker.GetFirstChild(element, request);
+            if (e == null)
+            {
+                return false;
+            }
+            element = e;
+            attrib = -1;
+            return true;
+        }
 
-		public override bool IsSamePosition(XPathNavigator other)
-		{
-			AutomationDocument o = other as AutomationDocument;
-			if (o == null) { 
-				return false;
-			}
+        public override bool MoveToParent()
+        {
+            if (element == null)
+            {
+                return false;
+            }
+            else if (AutomationElement.Equals(element, rootElement))
+            {
+                element = null;
+                attrib = -1;
+                return true;
+            }
+            AutomationElement e = walker.GetParent(element, request);
+            element = e;
+            attrib = -1;
+            return true;
+        }
 
-			return AutomationElement.Equals(element, o.element) && attrib == o.attrib;
-		}
+        public override bool MoveTo(XPathNavigator other)
+        {
+            AutomationDocument o = other as AutomationDocument;
+            if (o == null)
+            {
+                return false;
+            }
+            element = o.element;
+            attrib = o.attrib;
+            return true;
+        }
 
-		public override XmlNameTable NameTable
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
+        public override bool MoveToId(string id)
+        {
+            throw new NotImplementedException();
+        }
 
-		public override XPathNodeType NodeType
-		{
-			get
-			{
-				if (element == null)
-				{
-					return XPathNodeType.Root;
-				} 
-				else if (attrib > -1)
-				{
-					return XPathNodeType.Attribute;
-				}
+        public override bool IsSamePosition(XPathNavigator other)
+        {
+            AutomationDocument o = other as AutomationDocument;
+            if (o == null)
+            {
+                return false;
+            }
 
-				return XPathNodeType.Element;
-			}
-		}
+            return AutomationElement.Equals(element, o.element) && attrib == o.attrib;
+        }
 
-		public override string LocalName
-		{
-			get
-			{
-				if (attrib > -1)
-				{
-					return attribs[attrib].Key;
-				}
+        public override XmlNameTable NameTable
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
-				return GetProperty(tagAttrib);
-			}
-		}
+        public override XPathNodeType NodeType
+        {
+            get
+            {
+                if (element == null)
+                {
+                    return XPathNodeType.Root;
+                }
+                else if (attrib > -1)
+                {
+                    return XPathNodeType.Attribute;
+                }
 
-		public override string Value
-		{
-			get
-			{
-				if (attrib > -1)
-				{
-					return GetProperty(attribs[attrib].Value);
-				}
+                return XPathNodeType.Element;
+            }
+        }
 
-				return GetProperty(valueAttrib);
-			}
-		}
+        public override string LocalName
+        {
+            get
+            {
+                if (attrib > -1)
+                {
+                    return attribs[attrib].Key;
+                }
 
-		public override object UnderlyingObject
-		{
-			get
-			{
-				return element;
-			}
-		}
-		public override string Name
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
+                return GetProperty(tagAttrib);
+            }
+        }
 
-		public override string NamespaceURI
-		{
-			get
-			{
-				return string.Empty;
-			}
-		}
+        public override string Value
+        {
+            get
+            {
+                if (attrib > -1)
+                {
+                    return GetProperty(attribs[attrib].Value);
+                }
 
-		public override string Prefix
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
+                return GetProperty(valueAttrib);
+            }
+        }
 
-		public override string BaseURI
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
+        public override object UnderlyingObject
+        {
+            get
+            {
+                return element;
+            }
+        }
+        public override string Name
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
-		public override bool IsEmptyElement
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
-	}
+        public override string NamespaceURI
+        {
+            get
+            {
+                return string.Empty;
+            }
+        }
+
+        public override string Prefix
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override string BaseURI
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override bool IsEmptyElement
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
 }
