@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Windows.Interop;
 
 namespace AutomationLibrary.Tests
 {
@@ -10,6 +11,7 @@ namespace AutomationLibrary.Tests
     {
         internal static String id = Process.GetCurrentProcess().Id.ToString();
         static TestWindow window;
+        internal static IntPtr hwnd;
         static Thread thread;
 
         [AssemblyInitialize()]
@@ -20,7 +22,11 @@ namespace AutomationLibrary.Tests
             {
                 window = new TestWindow();
                 window.Title += id;
-                window.Loaded += (sender, e) => reset.Set();
+                window.Loaded += (sender, e) =>
+                {
+                    hwnd = new WindowInteropHelper(window).Handle;
+                    reset.Set();
+                };
                 new System.Windows.Application().Run(window);
 
             }));

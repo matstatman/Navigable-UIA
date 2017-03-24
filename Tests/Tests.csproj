@@ -68,6 +68,7 @@
     <Compile Include="Tests.cs" />
     <Compile Include="ReloadableObjectTests.cs" />
     <Compile Include="TestEnv.cs" />
+    <Compile Include="VirtualTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="TestWindow.xaml">
